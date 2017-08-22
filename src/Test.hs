@@ -1,4 +1,4 @@
-module Ch1 where
+module Test where
 
 --Simple quick sort function
 quickSort :: (Ord a) => [a] -> [a]
