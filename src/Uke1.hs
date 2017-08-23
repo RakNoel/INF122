@@ -7,11 +7,18 @@ import Test.QuickCheck
 {-# ANN module ("HLint: ignore Use foldr"::String) #-}
 
 -- 1.1
-double' :: (Num t) => t -> t
-double' x = x * 2
+double :: (Num t) => t -> t
+double x = x * 2
 
+{-
+    $ -> adds parentheses to the rest of
+    the equation
+
+    taskOne x = double $ double x
+    taskOne x = double ( double x )
+-}
 taskOne :: (Num t) => t -> t
-taskOne x = double' $ double' x
+taskOne x = double $ double x
 taskOne' x = 4 * x
 
 -- 1.2
