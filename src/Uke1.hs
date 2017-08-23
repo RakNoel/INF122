@@ -1,5 +1,7 @@
 module Uke1 where
 
+import Data.Char
+
 {-# ANN module ("HLint: ignore Redundant bracket"::String) #-}
 {-# ANN module ("HLint: ignore Use last"::String) #-}
 {-# ANN module ("HLint: ignore Use foldr"::String) #-}
@@ -95,6 +97,14 @@ pali :: String -> Bool
 pali [] = True
 pali [x] = True
 pali (x:xs) = ( x == (last xs)) && ( pali (init xs) )
+
+
+{- This ignores space and lower/upper case -}
+pali' :: String -> Bool
+pali' xs = pali $ map toLower $ remSpace xs
+
+remSpace :: String -> String
+remSpace xs = [ch | ch <- xs, ch /= ' ']
 
 -- B.3
 {- Se Uke1Tests.hs -}
