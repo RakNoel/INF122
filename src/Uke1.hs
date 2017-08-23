@@ -91,7 +91,15 @@ pali [x] = True
 pali (x:xs) = ( x == (last xs)) && ( pali (init xs) )
 
 -- B.3
--- TODO: Quick-check on B.1 & B.2!!
+chkplu = quickCheck
+    (\rList rInt ->
+        (plu rList rInt) == map (+rInt) rList
+    )
+
+chkpali = quickCheck
+    (\rStr ->
+        pali rStr == (rStr == reverse rStr)
+    )
 
 -- C.1
 listInverser :: (Ord a) => [[a]] -> [[a]]
