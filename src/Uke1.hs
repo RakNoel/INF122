@@ -56,7 +56,7 @@ qsUnique [] = []
 qsUnique (x:xs) = qsUnique lower ++ [x] ++ qsUnique larger
     where
         lower = [y | y <- xs, y < x]
-        larger = [y | y <- xs, y >= x]
+        larger = [y | y <- xs, y > x]
 
 -- 2.1
 {- Shoot me plz -}
@@ -91,7 +91,7 @@ pali [x] = True
 pali (x:xs) = ( x == (last xs)) && ( pali (init xs) )
 
 -- B.3
--- TODO: Quick-check!
+-- TODO: Quick-check on B.1 & B.2!!
 
 -- C.1
 listInverser :: (Ord a) => [[a]] -> [[a]]
