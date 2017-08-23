@@ -1,7 +1,5 @@
 module Uke1 where
 
-import Test.QuickCheck
-
 {-# ANN module ("HLint: ignore Redundant bracket"::String) #-}
 {-# ANN module ("HLint: ignore Use last"::String) #-}
 {-# ANN module ("HLint: ignore Use foldr"::String) #-}
@@ -17,6 +15,7 @@ double x = x * 2
     taskOne x = double $ double x
     taskOne x = double ( double x )
 -}
+
 taskOne :: (Num t) => t -> t
 taskOne x = double $ double x
 taskOne' x = 4 * x
@@ -66,7 +65,7 @@ qsUnique (x:xs) = qsUnique lower ++ [x] ++ qsUnique larger
         larger = [y | y <- xs, y > x]
 
 -- 2.1
-{- Shoot me plz -}
+{- Shoot me plz, I ain't doing this -}
 
 -- 2.2
 {-
@@ -98,15 +97,7 @@ pali [x] = True
 pali (x:xs) = ( x == (last xs)) && ( pali (init xs) )
 
 -- B.3
-chkplu = quickCheck
-    (\rList rInt ->
-        (plu rList rInt) == map (+rInt) rList
-    )
-
-chkpali = quickCheck
-    (\rStr ->
-        pali rStr == (rStr == reverse rStr)
-    )
+{- Se Uke1Tests.hs -}
 
 -- C.1
 listInverser :: (Ord a) => [[a]] -> [[a]]
