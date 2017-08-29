@@ -1,6 +1,5 @@
 module Foedselsnummer where
 
-illegalNumberException = error "Illegal number combination"
 
 {- DONT WRITE ANY PIN IN HERE, ITS ON GITHUB! -}
 
@@ -11,10 +10,10 @@ illegalNumberException = error "Illegal number combination"
 
 -- Control number one
 getC1 :: [Int] -> Int
-getC1 (d1:d2:m1:m2:y1:y2:i1:i2:i3:_)
+getC1 (d1:d2:m1:m2:y1:y2:i1:i2:i3:xs)
     | calc == 0 = calc
-    | calc < 10 = 11 - calc
-    | otherwise = illegalNumberException
+    | calc < 11 = 11 - calc
+    | otherwise = error "Illegal number combination for C1"
         where
             calc =
                 ( (3*d1) + (7*d2) + (6*m1)
@@ -24,10 +23,10 @@ getC1 (d1:d2:m1:m2:y1:y2:i1:i2:i3:_)
 
 -- Control number two
 getC2 :: [Int] -> Int -> Int
-getC2 (d1:d2:m1:m2:y1:y2:i1:i2:i3:_) c1
+getC2 (d1:d2:m1:m2:y1:y2:i1:i2:i3:xs) c1
     | calc == 0 = calc
-    | calc < 10 = 11 - calc
-    | otherwise =  illegalNumberException
+    | calc < 11 = 11 - calc
+    | otherwise =  error "Illegal number combination for C2"
         where
             calc =
                 ( (5*d1) + (4*d2) + (3*m1)
@@ -43,11 +42,15 @@ getCC xs = (c1, c2)
         c1 = getC1 xs
         c2 = getC2 xs c1
 
-checkNumber :: [Int] -> Bool
-checkNumber xs = (c1 == cc1) && (c2 == cc2)
+getIntArray :: String -> [Int]
+getIntArray = map (\x -> fromEnum x - 48)
+
+checkNumber :: String -> Bool
+checkNumber xp = (c1 == cc1) && (c2 == cc2)
     where
         cc1 = fst ccc
         cc2 = snd ccc
         ccc = getCC xs
-        c1 = xs !! 10
-        c2 = xs !! 11
+        c1 = xs !! 9
+        c2 = xs !! 10
+        xs = getIntArray xp
