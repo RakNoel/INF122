@@ -8,7 +8,6 @@ data Ast = Nr Int | Sum Ast Ast | Mul Ast Ast | Min Ast deriving (Eq, Show)
 parse :: String -> Ast
 parse xs = fst $ parseExpr xs
 
-
 parseExpr :: String -> (Ast, String)
 parseExpr ('+':' ':xs) =
     let (a,b) = parseExpr xs in
@@ -35,6 +34,23 @@ parseNr (x:xs)
     | isDigit x = let (a,b) = parseNr xs in (x : a , b)
     | otherwise = ([], xs)
 
---evi::String -> Int
 
---evb::String -> Bool
+evi::String -> Int
+evi xs = evival $ parse xs
+
+evival::Ast -> Int
+evival (Sum a b) = evival a + evival b
+evival (Mul a b) = evival a * evival b
+evival (Min a) = -evival a
+evival (Nr a) = a
+
+evb::String -> Bool
+evb xs = evbval $ parse xs
+
+evbval:: Ast -> Bool
+evbval (Sum a b) = evbval a || evbval b
+evbval (Mul a b) = evbval a && evbval b
+evbval (Min a) = not $ evbval a
+evbval (Nr a)
+    | a `mod` 2 == 0 = False
+    | otherwise = True
