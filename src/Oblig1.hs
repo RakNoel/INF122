@@ -3,43 +3,51 @@
 module Oblig1 where
 import Data.Char
 
-data Ast = Nr Int | Sum Ast Ast | Mul Ast Ast | Min Ast | If Ast Ast Ast deriving (Eq, Show)
+data Ast = Nr Int | Sum Ast Ast | Mul Ast Ast | Min Ast | If Ast Ast Ast | Let String Ast Ast | Var String
+    deriving (Eq, Show)
 
 parse :: String -> Ast
-parse xs = fst $ parseExpr xs
+parse = fst . parseExpr . words
 
-parseExpr :: String -> (Ast, String)
-parseExpr ('+':' ':xs) =
+parseExpr :: [String] -> (Ast, [String])
+parseExpr ("+":xs) =
     let (a,b) = parseExpr xs in
         if null b then (a,b)
         else let (x,z) = parseExpr b in
             (Sum a x, z)
 
-parseExpr ('-':' ':xs) =
+parseExpr ("-":xs) =
     let (a,b) = parseExpr xs in
             (Min a, b)
 
-parseExpr ('*':' ':xs) =
+parseExpr ("*":xs) =
     let (a,b) = parseExpr xs in
         if null b then (a,b)
         else let (x,z) = parseExpr b in
             (Mul a x, z)
 
-parseExpr ('i':'f':' ':xs) =
+parseExpr ("if":xs) =
     let (x,a) = parseExpr xs in
     let (y,b) = parseExpr a in
     let (z,c) = parseExpr b in
         (If x y z, c)
 
-parseExpr xs =
-    let (a,b) = parseNr xs in (Nr (read a), b)
+parseExpr ("let":x:"=":xs) =
+    let (func, b) = getVarExpr xs in
+    let (c, d) = parseExpr b in
+    if isUpper (head x) && length x == 1 then (Let x (fst (parseExpr func)) c, d )
+    else error "Illegal varriable"
 
-parseNr :: String -> (String, String)
-parseNr [] = ([],[])
-parseNr (x:xs)
-    | isDigit x = let (a,b) = parseNr xs in (x : a , b)
-    | otherwise = ([], xs)
+parseExpr (x:xs)
+    | isDigit (head x) = (Nr (read x), xs)
+    | isUpper (head x) = (Var x, xs)
 
+parseExpr _ = error "No pattern match"
+
+getVarExpr :: [String] -> ([String],[String])
+getVarExpr [] = ([],[])
+getVarExpr ("in":xs) = ([],xs)
+getVarExpr (x:xs) = let (a,b) = getVarExpr xs in (x : a, b)
 
 evi::String -> Int
 evi xs = evival $ parse xs
