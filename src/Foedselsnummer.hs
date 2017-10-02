@@ -20,6 +20,7 @@ getC1 (d1:d2:m1:m2:y1:y2:i1:i2:i3:xs)
                 + (1*m2) + (8*y1) + (9*y2)
                 + (4*i1) + (5*i2) + (2*i3)
                 ) `mod` 11
+getC1 _ = 0
 
 -- Control number two
 getC2 :: [Int] -> Int -> Int
@@ -34,6 +35,7 @@ getC2 (d1:d2:m1:m2:y1:y2:i1:i2:i3:xs) c1
                 + (5*i1) + (4*i2) + (3*i3)
                 + (2*c1)
                 ) `mod` 11
+getC2 _ = 0
 
 -- The complete control-number c1 and c2
 getCC :: [Int] -> (Int,Int)
