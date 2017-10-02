@@ -3,7 +3,7 @@
 module Oblig1 where
 import Data.Char
 
-data Ast = Nr Int | Sum Ast Ast | Mul Ast Ast | Min Ast deriving (Eq, Show)
+data Ast = Nr Int | Sum Ast Ast | Mul Ast Ast | Min Ast | If Ast Ast Ast deriving (Eq, Show)
 
 parse :: String -> Ast
 parse xs = fst $ parseExpr xs
@@ -25,6 +25,12 @@ parseExpr ('*':' ':xs) =
         else let (x,z) = parseExpr b in
             (Mul a x, z)
 
+parseExpr ('i':'f':' ':xs) =
+    let (x,a) = parseExpr xs in
+    let (y,b) = parseExpr a in
+    let (z,c) = parseExpr b in
+        (If x y z, c)
+
 parseExpr xs =
     let (a,b) = parseNr xs in (Nr (read a), b)
 
@@ -42,6 +48,9 @@ evival::Ast -> Int
 evival (Sum a b) = evival a + evival b
 evival (Mul a b) = evival a * evival b
 evival (Min a) = -evival a
+evival (If ev a b)
+    | evival ev == 0 = evival a
+    | otherwise = evival b
 evival (Nr a) = a
 
 evb::String -> Bool
@@ -51,6 +60,10 @@ evbval:: Ast -> Bool
 evbval (Sum a b) = evbval a || evbval b
 evbval (Mul a b) = evbval a && evbval b
 evbval (Min a) = not $ evbval a
+evbval (If ev a b )
+    | evbval ev = evbval a
+    | otherwise = evbval b
 evbval (Nr a)
     | a `mod` 2 == 0 = False
     | otherwise = True
+
