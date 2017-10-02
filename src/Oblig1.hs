@@ -30,10 +30,10 @@ getVarExpr ("in":xs) = ([],xs)
 getVarExpr (x:xs) = let (a,b) = getVarExpr xs in (x : a, b)
 
 evi::String -> Int
-evi xs = eval (parse xs) ([],0) (+) (*) (negate) (\x -> x) (\x -> (x == 0))
+evi xs = eval (parse xs) ([],0) (+) (*) negate id (== 0)
 
 evb::String -> Bool
-evb xs = eval (parse xs) ([],True) (||) (&&) not (\x -> (mod x 2 == 1)::Bool) (\x -> x)
+evb xs = eval (parse xs) ([],True) (||) (&&) not (\x -> (mod x 2 == 1)::Bool) id
 
 {-      Var     Var-value     Sum              Mul              Min         Handling      If val       -}
 eval :: Ast -> (String, a) -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (Int -> a) -> (a -> Bool) -> a
