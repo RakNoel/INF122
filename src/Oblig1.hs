@@ -27,10 +27,7 @@ parseExpr ("*":xs) =
         else let (x,z) = parseExpr b in (Mul a x, z)
 
 parseExpr ("if":xs) = (If x y z, c)
-        where
-            (x,a) = parseExpr xs
-            (y,b) = parseExpr a
-            (z,c) = parseExpr b
+        where (x,a) = parseExpr xs ; (y,b) = parseExpr a ; (z,c) = parseExpr b
 
 parseExpr ("let":x:"=":xs) =
     let (func, b) = parseExpr xs ; (c, d) = parseExpr b in
