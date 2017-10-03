@@ -44,7 +44,7 @@ parseExpr (x:xs)
 parseExpr _ = error "No pattern match"
 
 --Read let variable expression
-getVarExpr :: [String] -> ([String],[String])
+getVarExpr :: [String] -> ([String], [String])
 getVarExpr [] = ([],[])
 getVarExpr ("in":xs) = ([],xs)
 getVarExpr (x:xs) = let (a,b) = getVarExpr xs in (x : a, b)
@@ -59,7 +59,7 @@ evb xs = eval (parse xs) False (||) (&&) not odd id
 
 
 {-
-    This eval function takes an Abstract Syntax tree and many functons to recursivly use theese functions
+    This eval function takes an Abstract Syntax tree and many functions to recursively use these functions
     and produce a result.
 -}
 --      Var Var-value    Sum              Mul          Min         Handling      If val        Result
