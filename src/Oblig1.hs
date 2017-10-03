@@ -8,7 +8,9 @@ data Ast = Nr Int | Sum Ast Ast | Mul Ast Ast | Min Ast | If Ast Ast Ast | Let S
 
 --MAIN
 parse :: String -> Ast
-parse = fst . parseExpr . words
+parse xs = let a = fst $ parseExpr $ words xs ; vars = varCheck a [] in
+    if null vars then a
+    else error $ "Variable(s): " ++ show vars ++ " is undeclared in its scope"
 
 --Parser
 parseExpr :: [String] -> (Ast, [String])
@@ -72,3 +74,12 @@ eval (Min a) z f1 f2 f3 e1 e2         = f3 (eval a z f1 f2 f3 e1 e2)
 eval (Nr a) _ _ _ _ e _               = e a
 eval (Var _) z _ _ _ _ _              = z
 
+--          Ast     Let     Undeclared
+varCheck :: Ast -> [String] -> [String]
+varCheck (If var t f) p = varCheck var p ++ varCheck t p ++ varCheck f p
+varCheck (Let s a b) p  = varCheck a (s:p) ++ varCheck b (s:p)
+varCheck (Sum a b) p    = varCheck a p ++ varCheck b p
+varCheck (Mul a b) p    = varCheck a p ++ varCheck b p
+varCheck (Min a) p      = varCheck a p
+varCheck (Nr _) _       = []
+varCheck (Var s) p      = if s `elem` p then [] else [s]
