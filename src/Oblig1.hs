@@ -37,13 +37,14 @@ parseExpr ("if":xs) =
 parseExpr ("let":x:"=":xs) =
     let (func, b) = getVarExpr xs ; (c, d) = parseExpr b in
         if isUpper (head x) && length x == 1 then (Let x (fst $ parseExpr func) c, d )
-        else error "Illegal varriable"
+        else error $ "Illegal varriable" ++ x ++ ". Must be one letter upper case"
 
 parseExpr (x:xs)
     | isDigit (head x) = (Nr (read x), xs)
     | isUpper (head x) = (Var x, xs)
 
-parseExpr _ = error "No pattern match"
+parseExpr (x:xs) = error $ "No parse match for: '" ++ x ++ "' before " ++ show xs
+parseExpr _ = error "Reached bottom but no result"
 
 --Read let variable expression
 getVarExpr :: [String] -> ([String], [String])
