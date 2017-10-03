@@ -15,7 +15,9 @@ tests = runTestTT $ TestList [
         TestLabel "test8" test8,
         TestLabel "test9" test9,
         TestLabel "test10" test10,
-        TestLabel "test11" test11
+        TestLabel "test11" test11,
+        TestLabel "test12" test12,
+        TestLabel "test13" test13
     ]
 
 test1 = TestCase (assertEqual
@@ -78,9 +80,21 @@ test10 = TestCase (assertEqual
         (evb "* let X = 3 in + X 1 2")
     )
 
--- Should produce an error!
 test11 = TestCase (assertEqual
-        "evb simple"
+        "evi doubble let:"
+        24
+        (evi "let A = 2 in * let B = 3 in let A = 4 in * A B A")
+    )
+
+test12 = TestCase (assertEqual
+        "evb doubble let:"
+        False
+        (evb "let A = 2 in * let B = 3 in let A = 4 in * A B A")
+    )
+
+-- Should produce an error!
+test13 = TestCase (assertEqual
+        "FAIL TEST:"
         0
         (evi "* let X = 3 in + X 1 X")
     )

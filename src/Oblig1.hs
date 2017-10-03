@@ -67,19 +67,19 @@ evb xs = eval (parse xs) [] (||) (&&) not odd id
 -}
 --      Var    Var-values    Sum              Mul          Min         Handling      If val        Result
 eval :: Ast -> [(String, a)] -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (Int -> a) -> (a -> Bool) -> a
-eval (If var t f) z f1 f2 f3 e1 e2    = if e2 (eval var z f1 f2 f3 e1 e2) then eval t z f1 f2 f3 e1 e2 else eval f z f1 f2 f3 e1 e2
+eval (If var t f) z f1 f2 f3 e1 e2      = if e2 (eval var z f1 f2 f3 e1 e2) then eval t z f1 f2 f3 e1 e2 else eval f z f1 f2 f3 e1 e2
 eval (Let var val ex) z f1 f2 f3 e1 e2  = eval ex ((var, eval val z f1 f2 f3 e1 e2):z) f1 f2 f3 e1 e2
-eval (Var vr) (z:zx) f1 f2 f3 e1 e2   = let (a,b) = z in if a == vr then b else eval (Var vr) zx f1 f2 f3 e1 e2
-eval (Sum a b) z f1 f2 f3 e1 e2       = f1 (eval a z f1 f2 f3 e1 e2) (eval b z f1 f2 f3 e1 e2)
-eval (Mul a b) z f1 f2 f3 e1 e2       = f2 (eval a z f1 f2 f3 e1 e2) (eval b z f1 f2 f3 e1 e2)
-eval (Min a) z f1 f2 f3 e1 e2         = f3 (eval a z f1 f2 f3 e1 e2)
-eval (Nr a) _ _ _ _ e _               = e a
+eval (Var vr) (z:zx) f1 f2 f3 e1 e2     = let (a,b) = z in if a == vr then b else eval (Var vr) zx f1 f2 f3 e1 e2
+eval (Sum a b) z f1 f2 f3 e1 e2         = f1 (eval a z f1 f2 f3 e1 e2) (eval b z f1 f2 f3 e1 e2)
+eval (Mul a b) z f1 f2 f3 e1 e2         = f2 (eval a z f1 f2 f3 e1 e2) (eval b z f1 f2 f3 e1 e2)
+eval (Min a) z f1 f2 f3 e1 e2           = f3 (eval a z f1 f2 f3 e1 e2)
+eval (Nr a) _ _ _ _ e _                 = e a
 
 {-
     This method will check trough the AST and return any variables that is undeclared
     within its scope.
 -}
---          Ast     Let     Undeclared
+--          Ast     Let       Undeclared
 varCheck :: Ast -> [String] -> [String]
 varCheck (If var t f) p = varCheck var p ++ varCheck t p ++ varCheck f p
 varCheck (Let s a b) p  = varCheck a (s:p) ++ varCheck b (s:p)
