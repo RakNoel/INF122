@@ -35,9 +35,11 @@ parseExpr ("if":xs) =
             (z,c) = parseExpr b
 
 parseExpr ("let":x:"=":xs) =
-    let (func, b) = getVarExpr xs ; (c, d) = parseExpr b in
-        if isUpper (head x) && length x == 1 then (Let x (fst $ parseExpr func) c, d )
+    let (func, b) = parseExpr xs ; (c, d) = parseExpr b in
+        if isUpper (head x) && length x == 1 then (Let x func c, d )
         else error $ "Illegal varriable" ++ x ++ ". Must be one letter upper case"
+
+parseExpr ("in":xs) = parseExpr xs
 
 parseExpr (x:xs)
     | isDigit (head x) = (Nr (read x), xs)
@@ -45,12 +47,6 @@ parseExpr (x:xs)
 
 parseExpr (x:xs) = error $ "No parse match for: '" ++ x ++ "' before " ++ show xs
 parseExpr _ = error "Reached bottom but no result"
-
---Read let variable expression
-getVarExpr :: [String] -> ([String], [String])
-getVarExpr [] = ([],[])
-getVarExpr ("in":xs) = ([],xs)
-getVarExpr (x:xs) = let (a,b) = getVarExpr xs in (x : a, b)
 
 --Evaluate integer
 evi::String -> Int
