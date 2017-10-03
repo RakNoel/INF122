@@ -63,11 +63,11 @@ evb xs = eval (parse xs) False (||) (&&) not odd id
 
 {-
     This eval function takes an Abstract Syntax tree and many functions to recursively use these functions
-    and produce a result.
+    and produce a result. Looks nightmareish and still does when you understand it
 -}
 --      Var Var-value    Sum              Mul          Min         Handling      If val        Result
 eval :: Ast -> a -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (Int -> a) -> (a -> Bool) -> a
-eval (If var t f) z f1 f2 f3 e1 e2    = if e2 (eval var z f1 f2 f3 e1 e2)  then eval t z f1 f2 f3 e1 e2 else eval f z f1 f2 f3 e1 e2
+eval (If var t f) z f1 f2 f3 e1 e2    = if e2 (eval var z f1 f2 f3 e1 e2) then eval t z f1 f2 f3 e1 e2 else eval f z f1 f2 f3 e1 e2
 eval (Let _ val ex) z f1 f2 f3 e1 e2  = eval ex (eval val z f1 f2 f3 e1 e2) f1 f2 f3 e1 e2
 eval (Sum a b) z f1 f2 f3 e1 e2       = f1 (eval a z f1 f2 f3 e1 e2) (eval b z f1 f2 f3 e1 e2)
 eval (Mul a b) z f1 f2 f3 e1 e2       = f2 (eval a z f1 f2 f3 e1 e2) (eval b z f1 f2 f3 e1 e2)
@@ -75,6 +75,10 @@ eval (Min a) z f1 f2 f3 e1 e2         = f3 (eval a z f1 f2 f3 e1 e2)
 eval (Nr a) _ _ _ _ e _               = e a
 eval (Var _) z _ _ _ _ _              = z
 
+{-
+    This method will check trough the AST and return any variables that is undeclared
+    within its scope.
+-}
 --          Ast     Let     Undeclared
 varCheck :: Ast -> [String] -> [String]
 varCheck (If var t f) p = varCheck var p ++ varCheck t p ++ varCheck f p
