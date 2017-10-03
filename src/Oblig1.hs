@@ -19,16 +19,14 @@ parseExpr ("+":xs) =
         if null b then (a,b)
         else let (x,z) = parseExpr b in (Sum a x, z)
 
-parseExpr ("-":xs) =
-    let (a,b) = parseExpr xs in (Min a, b)
+parseExpr ("-":xs) = (Min a, b) where (a,b) = parseExpr xs
 
 parseExpr ("*":xs) =
     let (a,b) = parseExpr xs in
         if null b then (a,b)
         else let (x,z) = parseExpr b in (Mul a x, z)
 
-parseExpr ("if":xs) =
-    (If x y z, c)
+parseExpr ("if":xs) = (If x y z, c)
         where
             (x,a) = parseExpr xs
             (y,b) = parseExpr a
@@ -44,8 +42,8 @@ parseExpr ("in":xs) = parseExpr xs
 parseExpr (x:xs)
     | isDigit (head x) = (Nr (read x), xs)
     | isUpper (head x) = (Var x, xs)
+    | otherwise = error $ "No parse match for: '" ++ x ++ "' before " ++ show xs
 
-parseExpr (x:xs) = error $ "No parse match for: '" ++ x ++ "' before " ++ show xs
 parseExpr _ = error "Reached bottom but no result"
 
 --Evaluate integer
@@ -55,7 +53,6 @@ evi xs = eval (parse xs) [] (+) (*) negate id (== 0)
 --Evaluate Boolean
 evb::String -> Bool
 evb xs = eval (parse xs) [] (||) (&&) not odd id
-
 
 {-
     This eval function takes an Abstract Syntax tree and many functions to recursively use these functions
