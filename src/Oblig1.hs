@@ -9,15 +9,15 @@ data Ast = Nr Int | Sum Ast Ast | Mul Ast Ast | Min Ast | If Ast Ast Ast | Let S
 --MAIN
 parse :: String -> Ast
 parse xs = let a = fst $ parseExpr $ words xs ; vars = varCheck a [] in
-    if null vars then a
-    else error $ "Variable(s): " ++ show vars ++ " is undeclared in its scope"
+                if null vars then a
+                else error $ "Variable(s): " ++ show vars ++ " is undeclared in its scope"
 
 --Parser
 parseExpr :: [String] -> (Ast, [String])
 parseExpr ("+":xs) =
-    let (a,b) = parseExpr xs in
         if null b then (a,b)
-        else let (x,z) = parseExpr b in (Sum a x, z)
+        else (Sum a x, z)
+        where (a,b) = parseExpr xs ; (x,z) = parseExpr b
 
 parseExpr ("-":xs) = (Min a, b) where (a,b) = parseExpr xs
 
@@ -55,8 +55,8 @@ evb xs = eval (parse xs) [] (||) (&&) not odd id
     This eval function takes an Abstract Syntax tree and many functions to recursively use these functions
     and produce a result. Looks nightmareish and still does when you understand it
 -}
---      Var    Var-values    Sum              Mul          Min         Handling      If val        Result
-eval :: Ast -> [(String, a)] -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (Int -> a) -> (a -> Bool) -> a
+--                Var    Var-values       Sum              Mul              Min         Handling      If v        Result
+eval :: (Eq a) => Ast -> [(String, a)] -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (Int -> a) -> (a -> Bool) -> a
 eval (If var t f) z f1 f2 f3 e1 e2      = if e2 (eval var z f1 f2 f3 e1 e2) then eval t z f1 f2 f3 e1 e2 else eval f z f1 f2 f3 e1 e2
 eval (Let var val ex) z f1 f2 f3 e1 e2  = eval ex ((var, eval val z f1 f2 f3 e1 e2):z) f1 f2 f3 e1 e2
 eval (Sum a b) z f1 f2 f3 e1 e2         = f1 (eval a z f1 f2 f3 e1 e2) (eval b z f1 f2 f3 e1 e2)
