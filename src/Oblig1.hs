@@ -50,13 +50,16 @@ evb xs = eval (parse xs) [] (||) (&&) not odd id
 -}
 --                Var    Var-values       Sum              Mul              Min         Handling      If v        Result
 eval :: (Eq a) => Ast -> [(String, a)] -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (Int -> a) -> (a -> Bool) -> a
-eval (If var t f) z f1 f2 f3 e1 e2      = if e2 (eval var z f1 f2 f3 e1 e2) then eval t z f1 f2 f3 e1 e2 else eval f z f1 f2 f3 e1 e2
-eval (Let var val ex) z f1 f2 f3 e1 e2  = eval ex ((var, eval val z f1 f2 f3 e1 e2):z) f1 f2 f3 e1 e2
-eval (Sum a b) z f1 f2 f3 e1 e2         = f1 (eval a z f1 f2 f3 e1 e2) (eval b z f1 f2 f3 e1 e2)
-eval (Mul a b) z f1 f2 f3 e1 e2         = f2 (eval a z f1 f2 f3 e1 e2) (eval b z f1 f2 f3 e1 e2)
-eval (Min a) z f1 f2 f3 e1 e2           = f3 (eval a z f1 f2 f3 e1 e2)
-eval (Var v) z _ _ _ _ _                = head [y | (x,y) <- z, x == v]
-eval (Nr a) _ _ _ _ e _                 = e a
+eval ast z f1 f2 f3 e1 e2 =
+    case ast of
+        (If var t f)     -> if e2 $ evalEx var then evalEx t else evalEx f
+        (Let var val ex) -> eval ex ((var, evalEx val):z) f1 f2 f3 e1 e2
+        (Sum a b)        -> f1 (evalEx a) (evalEx b)
+        (Mul a b)        -> f2 (evalEx a) (evalEx b)
+        (Min a)          -> f3 (evalEx a)
+        (Var v)          -> head [y | (x,y) <- z, x == v]
+        (Nr a)           -> e1 a
+    where evalEx xs = eval xs z f1 f2 f3 e1 e2
 
 {-
     This method will check trough the AST and return any variables that is undeclared
