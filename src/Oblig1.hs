@@ -12,36 +12,29 @@ parse xs = let a = fst $ parseExpr $ words xs ; vars = varCheck a [] in
                 if null vars then a
                 else error $ "Variable(s): " ++ show vars ++ " is undeclared in its scope"
 
---Parser
+--ParserTest
 parseExpr :: [String] -> (Ast, [String])
-parseExpr ("+":xs) =
-        if null b then (a,b)
-        else (Sum a x, z)
-        where (a,b) = parseExpr xs ; (x,z) = parseExpr b
+parseExpr [] = error "Reached bottom but no result"
+parseExpr (selector:list) =
+    case selector of
+        ""                  -> error "Reached bottom but no result"
+        "+"                 -> if null r1 then (a1,r1) else (Sum a1 a2, r2)
+        "*"                 -> if null r1 then (a1,r1) else (Mul a1 a2, r2)
+        "-"                 -> (Min a1, r1)
+        "if"                -> (If a1 a2 a3, r3)
+        "="                 -> parseExpr list
+        "in"                -> parseExpr list
 
-parseExpr ("-":xs) = (Min a, b) where (a,b) = parseExpr xs
+        "let"               -> if isUpper f && null fs then (Let [f] if1 if2, ifr2)
+                               else error $ "Illegal varriable" ++ f:fs ++ ". Must be one letter upper case"
 
-parseExpr ("*":xs) =
-    let (a,b) = parseExpr xs in
-        if null b then (a,b)
-        else let (x,z) = parseExpr b in (Mul a x, z)
+        (x:xs)  | isDigit x -> (Nr (read (x:xs)), list)
+                | isUpper x -> (Var [x], list)
+                | otherwise -> error $ "No parse match for: '" ++  (x:"' before ") ++ show xs
 
-parseExpr ("if":xs) = (If x y z, c)
-        where (x,a) = parseExpr xs ; (y,b) = parseExpr a ; (z,c) = parseExpr b
-
-parseExpr ("let":x:"=":xs) =
-    let (func, b) = parseExpr xs ; (c, d) = parseExpr b in
-        if isUpper (head x) && length x == 1 then (Let x func c, d )
-        else error $ "Illegal varriable" ++ x ++ ". Must be one letter upper case"
-
-parseExpr ("in":xs) = parseExpr xs
-
-parseExpr (x:xs)
-    | isDigit (head x) = (Nr (read x), xs)
-    | isUpper (head x) = (Var x, xs)
-    | otherwise = error $ "No parse match for: '" ++ x ++ "' before " ++ show xs
-
-parseExpr _ = error "Reached bottom but no result"
+    where
+        (a1,r1) = parseExpr list ; (a2,r2) = parseExpr r1 ; (a3,r3) = parseExpr r2
+        (f:fs) = head list ; (if1, ifr1) = parseExpr $ tail list ; (if2, ifr2) = parseExpr ifr1 -- Let exclusive
 
 --Evaluate integer
 evi::String -> Int
