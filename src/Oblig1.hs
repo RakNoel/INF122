@@ -24,7 +24,7 @@ parseExpr (selector:list) = case selector of
     "="                 -> parseExpr list
     "in"                -> parseExpr list
     "let"               -> if isUpper f && null fs then (Let [f] if1 if2, ifr2)
-                               else error $ "Illegal varriable" ++ f:fs ++ ". Must be one letter upper case"
+                           else error $ "Illegal varriable" ++ f:fs ++ ". Must be one letter upper case"
     (x:xs)  | isDigit x -> (Nr (read (x:xs)), list)
             | isUpper x -> (Var [x], list)
             | otherwise -> error $ "No parse match for: '" ++  (x:"' before ") ++ show xs
