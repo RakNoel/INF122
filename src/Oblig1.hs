@@ -15,20 +15,19 @@ parse xs = let a = fst $ parseExpr $ words xs ; vars = varCheck a [] in
 --ParserTest
 parseExpr :: [String] -> (Ast, [String])
 parseExpr [] = error "Reached bottom but no result"
-parseExpr (selector:list) =
-    case selector of
-        ""                  -> error "Reached bottom but no result"
-        "+"                 -> if null r1 then (a1,r1) else (Sum a1 a2, r2)
-        "*"                 -> if null r1 then (a1,r1) else (Mul a1 a2, r2)
-        "-"                 -> (Min a1, r1)
-        "if"                -> (If a1 a2 a3, r3)
-        "="                 -> parseExpr list
-        "in"                -> parseExpr list
-        "let"               -> if isUpper f && null fs then (Let [f] if1 if2, ifr2)
+parseExpr (selector:list) = case selector of
+    ""                  -> error "Reached bottom but no result"
+    "+"                 -> if null r1 then (a1,r1) else (Sum a1 a2, r2)
+    "*"                 -> if null r1 then (a1,r1) else (Mul a1 a2, r2)
+    "-"                 -> (Min a1, r1)
+    "if"                -> (If a1 a2 a3, r3)
+    "="                 -> parseExpr list
+    "in"                -> parseExpr list
+    "let"               -> if isUpper f && null fs then (Let [f] if1 if2, ifr2)
                                else error $ "Illegal varriable" ++ f:fs ++ ". Must be one letter upper case"
-        (x:xs)  | isDigit x -> (Nr (read (x:xs)), list)
-                | isUpper x -> (Var [x], list)
-                | otherwise -> error $ "No parse match for: '" ++  (x:"' before ") ++ show xs
+    (x:xs)  | isDigit x -> (Nr (read (x:xs)), list)
+            | isUpper x -> (Var [x], list)
+            | otherwise -> error $ "No parse match for: '" ++  (x:"' before ") ++ show xs
 
     where
         (a1,r1) = parseExpr list ; (a2,r2) = parseExpr r1 ; (a3,r3) = parseExpr r2
