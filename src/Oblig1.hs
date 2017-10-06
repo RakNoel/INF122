@@ -24,10 +24,8 @@ parseExpr (selector:list) =
         "if"                -> (If a1 a2 a3, r3)
         "="                 -> parseExpr list
         "in"                -> parseExpr list
-
         "let"               -> if isUpper f && null fs then (Let [f] if1 if2, ifr2)
                                else error $ "Illegal varriable" ++ f:fs ++ ". Must be one letter upper case"
-
         (x:xs)  | isDigit x -> (Nr (read (x:xs)), list)
                 | isUpper x -> (Var [x], list)
                 | otherwise -> error $ "No parse match for: '" ++  (x:"' before ") ++ show xs
@@ -50,15 +48,14 @@ evb xs = eval (parse xs) [] (||) (&&) not odd id
 -}
 --                Var    Var-values       Sum              Mul              Min         Handling      If v        Result
 eval :: (Eq a) => Ast -> [(String, a)] -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (Int -> a) -> (a -> Bool) -> a
-eval ast z f1 f2 f3 e1 e2 =
-    case ast of
-        (If var t f)     -> if e2 $ evalEx var then evalEx t else evalEx f
-        (Let var val ex) -> eval ex ((var, evalEx val):z) f1 f2 f3 e1 e2
-        (Sum a b)        -> f1 (evalEx a) (evalEx b)
-        (Mul a b)        -> f2 (evalEx a) (evalEx b)
-        (Min a)          -> f3 (evalEx a)
-        (Var v)          -> head [y | (x,y) <- z, x == v]
-        (Nr a)           -> e1 a
+eval ast z f1 f2 f3 e1 e2 = case ast of
+    (If var t f)     -> if e2 $ evalEx var then evalEx t else evalEx f
+    (Let var val ex) -> eval ex ((var, evalEx val):z) f1 f2 f3 e1 e2
+    (Sum a b)        -> f1 (evalEx a) (evalEx b)
+    (Mul a b)        -> f2 (evalEx a) (evalEx b)
+    (Min a)          -> f3 (evalEx a)
+    (Var v)          -> head [y | (x,y) <- z, x == v]
+    (Nr a)           -> e1 a
     where evalEx xs = eval xs z f1 f2 f3 e1 e2
 
 {-
@@ -67,10 +64,12 @@ eval ast z f1 f2 f3 e1 e2 =
 -}
 --          Ast     Let       Undeclared
 varCheck :: Ast -> [String] -> [String]
-varCheck (If var t f) p = varCheck var p ++ varCheck t p ++ varCheck f p
-varCheck (Let s a b) p  = varCheck a (s:p) ++ varCheck b (s:p)
-varCheck (Var s) p      = if s `elem` p then [] else [s]
-varCheck (Sum a b) p    = varCheck a p ++ varCheck b p
-varCheck (Mul a b) p    = varCheck a p ++ varCheck b p
-varCheck (Min a) p      = varCheck a p
-varCheck (Nr _) _       = []
+varCheck ast p = case ast of
+    (If var t f) -> varCheckEx var ++ varCheckEx t ++ varCheckEx f
+    (Let s a b)  -> varCheck a (s:p) ++ varCheck b (s:p)
+    (Var s)      -> if s `elem` p then [] else [s]
+    (Sum a b)    -> varCheckEx a ++ varCheckEx b
+    (Mul a b)    -> varCheckEx a ++ varCheckEx b
+    (Min a)      -> varCheckEx a
+    (Nr _)       -> []
+    where varCheckEx x = varCheck x p
