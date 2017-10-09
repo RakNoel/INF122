@@ -16,8 +16,9 @@ tests = runTestTT $ TestList [
         TestLabel "test9" test9,
         TestLabel "test10" test10,
         TestLabel "test11" test11,
-        TestLabel "test12" test12
-        --TestLabel "test13" test13
+        TestLabel "test12" test12,
+        --TestLabel "test13" test13,
+        TestLabel "test14" test14
     ]
 
 test1 = TestCase (assertEqual
@@ -99,3 +100,9 @@ test13 = TestCase (assertEqual
         (evi "* let X = 3 in + X 1 X")
     )
 -}
+
+test14 = TestCase (assertEqual
+        "Let X = 2 in Let X = (X + 2) == 4"
+        4
+        (evi "let X = 2 let X = + X 2 X")
+    )

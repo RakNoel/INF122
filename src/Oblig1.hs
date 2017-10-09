@@ -65,7 +65,7 @@ eval ast z f1 f2 f3 e1 e2 = case ast of
 varCheck :: Ast -> [String] -> [String]
 varCheck ast p = case ast of
     (If var t f) -> varCheckEx var ++ varCheckEx t ++ varCheckEx f
-    (Let s a b)  -> varCheck a (s:p) ++ varCheck b (s:p)
+    (Let s a b)  -> varCheckEx a ++ varCheck b (s:p)
     (Var s)      -> if s `elem` p then [] else [s]
     (Sum a b)    -> varCheckEx a ++ varCheckEx b
     (Mul a b)    -> varCheckEx a ++ varCheckEx b
