@@ -9,6 +9,7 @@ module Main where
 
 import Control.Concurrent
 import System.Exit
+import Data.List
 
 type Pos = (Int, Int)
 type Board = [Pos]
@@ -45,21 +46,6 @@ configToStr rs rb = "Config: \n"
 lineSplitter :: String
 lineSplitter = "\n" ++ "==================================================" ++ "\n\n"
 
-mergeSort:: (Ord a) => [a] -> [a]
-mergeSort [] = []
-mergeSort [x] = [x]
-mergeSort xs = mergeSort (take half xs) `merge` mergeSort (drop half xs)
-    where
-        half = length xs `div` 2
-
-merge:: (Ord a) => [a] -> [a] -> [a]
-merge [] xs = xs
-merge xs [] = xs
-merge (x:xs) (y:ys)
-    | x > y = y : ( (x:xs) `merge` ys )
-    | x < y = x : ( xs `merge` (y:ys) )
-    | otherwise = [x,y] ++ ( xs `merge` ys )
-
 isAlive :: Board -> Pos -> Bool
 isAlive b p = p `elem` b
 
@@ -81,17 +67,10 @@ survivors :: Board -> Int -> [Int] -> [Pos]
 survivors b s rs = [p | p <- b, liveNeibrs b s p `elem` rs] -- where [2,3] is accepted alive neibrs for gamerules
 
 births :: Board -> Int -> [Int] -> [Pos]
-births b s rb = [p | p <- rmdupes $ concatMap (`getNeibrs` s) b, isDead b p, liveNeibrs b s p `elem` rb]
-
-rmdupes :: Eq a => [a] -> [a]
-rmdupes [] = []
-rmdupes (x:xs) = x : rmdupes (filter (/= x) xs)
-
-removeItem :: Eq a => a -> [a] -> [a]
-removeItem x = filter (/= x)
+births b s rb = [p | p <- nub $ concatMap (`getNeibrs` s) b, isDead b p, liveNeibrs b s p `elem` rb]
 
 nextGen :: Board -> Int -> [Int] -> [Int] -> Board
-nextGen b s rs rb = merge (survivors b s rs) (mergeSort $ births b s rb)
+nextGen b s rs rb = foldr insert (sort $ births b s rb) (survivors b s rs)
 
 cls :: IO()
 cls = putStr "\ESC[2J" --Works just as intended from book
@@ -152,8 +131,8 @@ menu b s rs rb = do
     cls
     case words command of
         ("c":x:_)    -> menu [] (read x) rs rb
-        ("n":x:y:_)  -> menu (rmdupes $ (read x, read y):b) s rs rb
-        ("d":x:y:_)  -> menu (removeItem (read x, read y) b) s rs rb
+        ("n":x:y:_)  -> menu (nub $ (read x, read y):b) s rs rb
+        ("d":x:y:_)  -> menu (delete (read x, read y) b) s rs rb
         ("s":x:y:_)  -> let r' = [read x .. read y] in do putStrLn $ configToStr r' rb ; menu b s r' rb
         ("b":x:y:_)  -> let r' = [read x .. read y] in do putStrLn $ configToStr r' rb ; menu b s rs r'
         ("?":_)      -> do putStr $ helpString rs rb ; menu b s rs rb
