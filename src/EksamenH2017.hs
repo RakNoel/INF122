@@ -48,3 +48,25 @@ bfs grp vis now (x:todo)
     | x `elem` vis = [reverse (now:vis) ++ [x]]
     | otherwise = concatMap (\x -> bfs grp (now:vis) x (nbh x)) (nbh now)
     where nbh = naboer grp
+
+allcyc :: (Eq t) => [(t,[t])] -> [[t]]
+allcyc lx = let res = map (\(a,b) -> cyc lx a) lx in if null res then [] else res
+
+main :: IO()
+main = do
+    putStrLn "Hello, graph calculations"
+    mainhelper []
+
+mainhelper :: [(String,String)] -> IO()
+mainhelper grp = do
+    putStr "Current graph: "
+    print (naboL grp)
+    putStrLn "----------------------------"
+    com <- getLine
+    case words com of
+        ("g":_) -> do putStrLn "Created new graph" ; mainhelper []
+        ("k":x:y:_) -> do putStrLn ("Added (" ++ x ++ "," ++ y ++ ") to graph"); mainhelper ((x,y):grp)
+        ("f":x:y:_) -> do putStrLn ("Removed (" ++ x ++ "," ++ y ++ ") from graph") ; mainhelper (filter (\(xx,yy) -> xx/=x || yy/=y) grp)
+        ("s":_) -> let res = allcyc (naboL grp) in do putStr "Cycles: " ; print res ; mainhelper grp
+        ("q":_) -> putStrLn "Bye"
+        _ -> do putStrLn "Unknown command, try again" ; mainhelper grp
